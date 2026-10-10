@@ -112,7 +112,7 @@ class ToolsManager {
       info: {
         icon: fa_info_circle,
         callback: () => {
-          open('https://github.com/stevenjoezhang/live2d-widget');
+          open('https://github.com/iUshio/live2d-widget');
         }
       },
       quit: {

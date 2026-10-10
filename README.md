@@ -30,7 +30,7 @@
 如果你是小白，或者只需要最基础的功能，那么只用将这一行代码加入 html 页面的 `head` 或 `body` 中，即可加载看板娘：
 
 ```html
-<script src="https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/autoload.js"></script>
+<script src="https://fastly.jsdelivr.net/gh/iUshio/live2d-widget@master/autoload.js"></script>
 ```
 
 添加代码的位置取决于你的网站的构建方式。例如，如果你使用的是 [Hexo](https://hexo.io)，那么需要在主题的模版文件中添加以上代码。对于用各种模版引擎生成的页面，修改方法类似。  
@@ -41,23 +41,34 @@
 
 ## 配置
 
-你可以对照 `dist/autoload.js` 的源码查看可选的配置项目。`autoload.js` 会自动加载两个文件：`waifu.css` 和 `waifu-tips.js`。`waifu-tips.js` 会创建 `initWidget` 函数，这就是加载看板娘的主函数。`initWidget` 函数接收一个 Object 类型的参数，作为看板娘的配置。以下是配置选项：
+仓库根目录的 `autoload.js` 会加载同一仓库、同一分支或版本下的 `dist/autoload.js`，后者根据自身地址加载 `waifu.css`、`waifu-tips.js` 和配置文件。本地部署和 CDN 部署均无须修改资源基址。也可直接引用 `dist/autoload.js`。完整适配检查见 [ADAPTATION.md](ADAPTATION.md)。
+
+可在加载脚本前设置 `window.live2dWidgetConfig` 覆盖配置，例如：
+
+```html
+<script>
+window.live2dWidgetConfig = { drag: true, modelId: 0, logLevel: 'warn' };
+</script>
+<script src="https://fastly.jsdelivr.net/gh/iUshio/live2d-widget@master/autoload.js"></script>
+```
+
+`waifu-tips.js` 会创建 `initWidget` 函数，这就是加载看板娘的主函数。`initWidget` 函数接收一个 Object 类型的参数，作为看板娘的配置。以下是配置选项：
 
 | 选项 | 类型 | 默认值 | 说明 |
 | - | - | - | - |
-| `waifuPath` | `string` | `https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/waifu-tips.json` | 看板娘资源路径，可自行修改 |
-| `cdnPath` | `string` | `https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/` | CDN 路径 |
-| `cubism2Path` | `string` | `https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/live2d.min.js` | Cubism 2 Core 路径 |
+| `waifuPath` | `string` | 当前加载器所在目录下的 `waifu-tips.json` | 看板娘资源路径，可自行修改 |
+| `cdnPath` | `string` | 未设置（使用配置 JSON 中的 `models` 列表） | 模型仓库路径，设置后使用该仓库的 `model_list.json` |
+| `cubism2Path` | `string` | 当前加载器所在目录下的 `live2d.min.js` | Cubism 2 Core 路径 |
 | `cubism5Path` | `string` | `https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js` | Cubism 5 Core 路径 |
 | `modelId` | `number` | `0` | 默认模型 id |
 | `tools` | `string[]` | 见 `autoload.js` | 加载的小工具按钮 |
 | `drag` | `boolean` | `false` | 支持拖动看板娘 |
 | `showToggleAfterQuit` | `boolean` | `true` | 点击关闭后是否显示重新唤起按钮；若设为 `false`，则会永久关闭，直到清除本地存储 |
-| `logLevel` | `string` | `error` | 日志等级，支持 `error`，`warn`，`info`，`trace` |
+| `logLevel` | `string` | `warn` | 日志等级，支持 `error`，`warn`，`info`，`trace` |
 
 ## 模型仓库
 
-本仓库中并不包含任何模型，需要单独配置模型仓库，并通过 `cdnPath` 选项进行设置。  
+本仓库中并不包含任何模型文件，默认使用 `dist/waifu-tips.json` 的 `models` 列表引用外部模型。可修改该列表，也可通过 `cdnPath` 配置模型仓库。
 旧版本的 `initWidget` 函数支持 `apiPath` 参数，这要求用户自行搭建后端，可以参考 [live2d_api](https://github.com/fghrsh/live2d_api)。后端接口会对模型资源进行整合并动态生成 JSON 描述文件。自 1.0 版本起，相关功能已通过前端实现，因此不再需要专门的 `apiPath`，所有模型资源都可通过静态方式提供。只要存在 `model_list.json` 和模型对应的 `textures.cache`，即可支持换装等功能。
 
 ## 开发
@@ -77,12 +88,12 @@
 要在本地部署本项目的开发测试环境，你需要安装 Node.js 和 npm，然后执行以下命令：
 
 ```bash
-git clone https://github.com/stevenjoezhang/live2d-widget.git
+git clone https://github.com/iUshio/live2d-widget.git
 npm install
 ```
 
 如果需要使用 Cubism 3 及更新的模型，请单独下载并解压 Cubism SDK for Web 到 `src` 目录下，例如 `src/CubismSdkForWeb-5-r.4`。受 Live2D 许可协议（包括 Live2D Proprietary Software License Agreement 和 Live2D Open Software License Agreement）限制，本项目无法包含 Cubism SDK for Web 的源码。  
-如果只需要使用 Cubism 2 版本的模型，可以跳过此步骤。本仓库使用的代码满足 Live2D 许可协议中 Redistributable Code 相关条款。  
+当前完整打包入口也包含 Cubism 5 的动态导入，因此从源码重新构建时仍需 SDK。仅运行仓库中已有的 `dist` 文件无须安装 SDK；若要构建仅支持 Cubism 2 的版本，需要另设构建入口。本仓库使用的代码满足 Live2D 许可协议中 Redistributable Code 相关条款。
 完成后，使用以下命令进行编译和打包。
 
 ```bash
@@ -104,7 +115,7 @@ npm run build
 <script src="https://fastly.jsdelivr.net/gh/username/live2d-widget@latest/autoload.js"></script>
 ```
 
-将此处的 `username` 替换为你的 GitHub 用户名。为了使 CDN 的内容正常刷新，需要创建新的 git tag 并推送至 GitHub 仓库中，否则此处的 `@latest` 仍然指向更新前的文件。此外 CDN 本身存在缓存，因此改动可能需要一定的时间生效。
+将此处的 `username` 替换为你的 GitHub 用户名。本项目也可使用开头示例中的 `iUshio/live2d-widget@master`。需要同时提交根目录入口和整个 `dist/`，包括 `chunk/`。生产使用时建议把 `@master` 换成已推送的版本 tag 或提交 SHA，以固定资源版本。CDN 本身存在缓存，分支更新后不一定立即生效。
 
 ### 使用 Cloudflare Pages
 
@@ -118,20 +129,19 @@ npm run build
 - 如果你是通过 Hexo 等工具部署的静态博客，请把本项目的代码放在博客源文件目录下（例如 `source` 目录）。重新部署博客时，相关文件就会自动上传到对应的路径下。为了避免这些文件被 Hexo 插件错误地修改，可能需要设置 `skip_render`。
 
 这样，整个项目就可以通过你的域名访问了。不妨试试能否正常地通过浏览器打开 `autoload.js` 和 `live2d.min.js` 等文件，并确认这些文件的内容是完整和正确的。  
-一切正常的话，接下来修改 `autoload.js` 中的常量 `live2d_path` 为 `dist` 目录的 URL 即可。比如说，如果你能够通过
+本项目的加载器会自动根据脚本地址计算资源目录，无须修改 `live2d_path`。例如，如果你能够通过
 
 ```
 https://example.com/path/to/live2d-widget/dist/live2d.min.js
 ```
 
-访问到 `live2d.min.js`，那么就把 `live2d_path` 的值修改为
+访问到 `live2d.min.js`，那么其余运行资源也应位于
 
 ```
 https://example.com/path/to/live2d-widget/dist/
 ```
 
-路径末尾的 `/` 一定要加上。  
-完成后，在你要添加看板娘的界面加入
+确认该目录包含完整 `dist` 资源后，在你要添加看板娘的界面加入
 
 ```html
 <script src="https://example.com/path/to/live2d-widget/dist/autoload.js"></script>

@@ -30,7 +30,7 @@ You can also check out example web pages:
 If you are a beginner or only need the basic functionality, you can simply add the following line of code to the `head` or `body` of your HTML page to load the widget:
 
 ```html
-<script src="https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/autoload.js"></script>
+<script src="https://fastly.jsdelivr.net/gh/iUshio/live2d-widget@master/autoload.js"></script>
 ```
 
 The placement of the code depends on how your website is built. For example, if you are using [Hexo](https://hexo.io), you need to add the above code to the template file of your theme. The modification process is similar for pages generated using various template engines.  
@@ -41,23 +41,25 @@ If you are interested in customizing the widget, please refer to the detailed in
 
 ## Configuration
 
-You can refer to the source code of `dist/autoload.js` to see the available configuration options. `autoload.js` will automatically load two files: `waifu.css` and `waifu-tips.js`. `waifu-tips.js` creates the `initWidget` function, which is the main function for loading the widget. The `initWidget` function accepts an object-type parameter as the configuration for the widget. The following are the available options:
+The root `autoload.js` forwards to `dist/autoload.js` in the same repository and ref. Resources are resolved relative to that script, so local hosting and GitHub CDN hosting need no base-path edits. Set `window.live2dWidgetConfig` before including the script to override defaults. See [ADAPTATION.md](ADAPTATION.md) for the adaptation review (Chinese).
+
+`waifu-tips.js` creates the `initWidget` function, which accepts the configuration object. The following are the available options:
 
 | Option | Type | Default Value | Description |
 | ------ | ---- | ------------- | ----------- |
-| `waifuPath` | `string` | `https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/waifu-tips.json` | Path to the widget resources, can be modified |
-| `cdnPath` | `string` | `https://fastly.jsdelivr.net/gh/fghrsh/live2d_api/` | CDN path |
-| `cubism2Path` | `string` | `https://fastly.jsdelivr.net/npm/live2d-widgets@1.0.1/dist/live2d.min.js` | Path to Cubism 2 Core |
+| `waifuPath` | `string` | `waifu-tips.json` beside the dist loader | Path to the widget configuration |
+| `cdnPath` | `string` | Unset (uses `models` in the configuration JSON) | Model repository containing `model_list.json` |
+| `cubism2Path` | `string` | `live2d.min.js` beside the dist loader | Path to Cubism 2 Core |
 | `cubism5Path` | `string` | `https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js` | Path to Cubism 5 Core |
 | `modelId` | `number` | `0` | Default model id |
 | `tools` | `string[]` | see `autoload.js` | Buttons of the loaded tools |
 | `drag` | `boolean` | `false` | Make the widget draggable |
 | `showToggleAfterQuit` | `boolean` | `true` | Whether to show the toggle button after quitting; if `false`, quitting permanently disables the widget until local storage is cleared |
-| `logLevel` | `string` | `error` | Log level: `error`, `warn`, `info`, `trace` |
+| `logLevel` | `string` | `warn` | Log level: `error`, `warn`, `info`, `trace` |
 
 ## Model Repository
 
-This repository does not include any models. You need to configure a separate model repository and set it via the `cdnPath` option.  
+This repository does not include model files. Defaults reference external models through `models` in `dist/waifu-tips.json`. Edit that list or set `cdnPath` to use a separate model repository.
 Older versions of the `initWidget` function supported the `apiPath` parameter, which required users to set up their own backend. You can refer to [live2d_api](https://github.com/fghrsh/live2d_api) for details. The backend interface would integrate model resources and dynamically generate JSON description files. Since version 1.0, these features have been implemented on the frontend, so a dedicated `apiPath` is no longer required. All model resources can be provided statically. As long as `model_list.json` and the corresponding `textures.cache` for each model exist, features such as outfit changing are supported.
 
 ## Development
@@ -77,12 +79,12 @@ If the options provided in the "Configuration" section above are not enough to m
 To deploy the development testing environment of this project locally, you need to install Node.js and npm, then execute the following commands:
 
 ```bash
-git clone https://github.com/stevenjoezhang/live2d-widget.git
+git clone https://github.com/iUshio/live2d-widget.git
 npm install
 ```
 
 If you need to use Cubism 3 or newer models, please download and extract the Cubism SDK for Web separately into the `src` directory, for example, `src/CubismSdkForWeb-5-r.4`. Due to Live2D license agreements (including the Live2D Proprietary Software License Agreement and Live2D Open Software License Agreement), this project cannot include the source code of Cubism SDK for Web.  
-If you only need to use Cubism 2 models, you can skip this step. The code in this repository complies with the Redistributable Code terms of the Live2D license agreements.  
+The current full bundle also includes the Cubism 5 dynamic import, so rebuilding from source still needs the SDK. Running the existing `dist` files does not need an SDK installation. A Cubism 2-only build requires a separate build entry. The code in this repository complies with the Redistributable Code terms of the Live2D license agreements.
 Once completed, use the following command to compile and bundle the project.
 
 
@@ -105,7 +107,7 @@ To load forked repository via jsDelivr, the usage method becomes:
 <script src="https://fastly.jsdelivr.net/gh/username/live2d-widget@latest/autoload.js"></script>
 ```
 
-Replace `username` with your GitHub username. To ensure the content of the CDN is refreshed correctly, you need to create a new git tag and push it to the GitHub repository. Otherwise, `@latest` in the URL will still point to the previous version. Additionally, CDN itself has caching, so the changes may take some time to take effect.
+Replace `username` with your GitHub username, or use `iUshio/live2d-widget@master` as shown above. Push the root entry and the complete `dist/` directory, including `chunk/`. For production, use a pushed version tag or commit SHA to pin the version. CDN caching can delay branch updates.
 
 ### Using Cloudflare Pages
 
@@ -119,20 +121,19 @@ Alternatively, you can directly host these files on your server instead of loadi
 - If you are deploying a static blog using Hexo or similar tools, place the code of this project in the blog's source file directory (e.g., the `source` directory). When redeploying the blog, the relevant files will be automatically uploaded to the corresponding paths. To prevent these files from being incorrectly modified by Hexo plugins, you may need to set `skip_render`.
 
 Afterwards, the entire project can be accessed through your domain name. You can try opening the `autoload.js` and `live2d.min.js` files in your browser and confirm that their content is complete and correct.
-If everything is normal, you can proceed to modify the constant `live2d_path` in `autoload.js` to the URL of the `dist` directory. For example, if you can access `live2d.min.js` through the following URL:
+The loader resolves its resource directory automatically. For example, if you can access `live2d.min.js` through the following URL:
 
 ```
 https://example.com/path/to/live2d-widget/dist/live2d.min.js
 ```
 
-then modify the value of `live2d_path` to:
+then the other dist resources should also be available under:
 
 ```
 https://example.com/path/to/live2d-widget/dist/
 ```
 
-Make sure to include the trailing `/` in the path.
-Once done, add the following code to the interface where you want to add the live2d-widget:
+After confirming that the complete dist resources are present, add the following code to your page:
 
 ```html
 <script src="https://example.com/path/to/live2d-widget/dist/autoload.js"></script>

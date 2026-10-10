@@ -111,7 +111,7 @@ async function loadWidget(config) {
 }
 function initWidget(config) {
     if (typeof config === 'string') {
-        logger.error('Your config for Live2D initWidget is outdated. Please refer to https://github.com/stevenjoezhang/live2d-widget/blob/master/dist/autoload.js');
+        logger.error('Your config for Live2D initWidget is outdated. Please refer to https://github.com/iUshio/live2d-widget/blob/master/dist/autoload.js');
         return;
     }
     if (localStorage.getItem(WAIFU_DISABLED_KEY) === 'true') {

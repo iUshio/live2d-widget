@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stevenjoezhang/live2d-widget.git"
+    "url": "git+https://github.com/iUshio/live2d-widget.git"
   },
   "keywords": [
     "Live2D",
@@ -31,9 +31,9 @@
   "author": "stevenjoezhang <stevenjoezhang@gmail.com>",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/stevenjoezhang/live2d-widget/issues"
+    "url": "https://github.com/iUshio/live2d-widget/issues"
   },
-  "homepage": "https://github.com/stevenjoezhang/live2d-widget#readme",
+  "homepage": "https://github.com/iUshio/live2d-widget#readme",
   "dependencies": {
     "@fortawesome/fontawesome-free": "7.2.0"
   },

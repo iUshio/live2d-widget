@@ -27,7 +27,7 @@ export default {
     sourcemap: true,
     banner: `/*!
  * Live2D Widget
- * https://github.com/stevenjoezhang/live2d-widget
+ * https://github.com/iUshio/live2d-widget
  */
 `
   },
